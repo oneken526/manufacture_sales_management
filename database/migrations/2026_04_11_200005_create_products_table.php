@@ -10,12 +10,14 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table): void {
             $table->id();
-            $table->string('product_code', 50)->unique();
+            $table->string('code', 50)->unique();
             $table->string('name', 255);
-            $table->foreignId('product_category_id')
+            $table->foreignId('category_id')
                   ->constrained('product_categories')
                   ->restrictOnDelete();
-            $table->decimal('standard_price', 15, 2)->default(0);
+            $table->decimal('unit_price', 15, 2)->default(0)->comment('標準単価');
+            $table->string('unit_name', 20)->nullable()->comment('単位（個・本・kg 等）');
+            $table->text('notes')->nullable()->comment('備考');
             $table->timestamps();
             $table->softDeletes();
         });

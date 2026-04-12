@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Models\User;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -28,7 +29,16 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        /** @var User $user */
+        $user = Auth::user();
+
+        $redirectUrl = match (true) {
+            $user->hasRole('manufacture') => '/manufacture-orders',
+            $user->hasRole('warehouse')   => '/shipments',
+            default                       => route('dashboard', absolute: false),
+        };
+
+        return redirect()->intended($redirectUrl);
     }
 
     /**
@@ -42,6 +52,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('/login');
     }
 }

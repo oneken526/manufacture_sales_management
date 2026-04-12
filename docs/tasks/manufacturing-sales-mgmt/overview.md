@@ -40,8 +40,8 @@
 - [x] [TASK-0001: 開発環境セットアップ（Breeze/Spatie/dompdf/jQuery導入）](TASK-0001.md) - 4h (DIRECT) 🔵
 - [x] [TASK-0002: 全業務テーブルマイグレーション作成](TASK-0002.md) - 8h (DIRECT) 🔵
 - [x] [TASK-0003: Spatie Permission ロール設定・シーダー](TASK-0003.md) - 4h (DIRECT) 🔵
-- [ ] [TASK-0004: 共通 Blade レイアウト・ロール別ナビゲーション](TASK-0004.md) - 8h (TDD) 🔵
-- [ ] [TASK-0005: 認証画面カスタマイズ](TASK-0005.md) - 4h (TDD) 🔵
+- [x] [TASK-0004: 共通 Blade レイアウト・ロール別ナビゲーション](TASK-0004.md) - 8h (TDD) 🔵
+- [x] [TASK-0005: 認証画面カスタマイズ](TASK-0005.md) - 4h (TDD) 🔵
 - [ ] [TASK-0006: 得意先管理 CRUD（CustomerController）](TASK-0006.md) - 8h (TDD) 🔵
 - [ ] [TASK-0007: 商品・カテゴリ管理 CRUD（ProductController）](TASK-0007.md) - 8h (TDD) 🔵
 - [ ] [TASK-0008: 倉庫管理 CRUD（WarehouseController）](TASK-0008.md) - 4h (TDD) 🔵

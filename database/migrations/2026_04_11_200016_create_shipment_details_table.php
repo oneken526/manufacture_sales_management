@@ -23,7 +23,9 @@ return new class extends Migration
             $table->softDeletes();
         });
 
-        DB::statement('ALTER TABLE shipment_details ADD CONSTRAINT chk_shipment_details_quantity CHECK (quantity > 0)');
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE shipment_details ADD CONSTRAINT chk_shipment_details_quantity CHECK (quantity > 0)');
+        }
     }
 
     public function down(): void

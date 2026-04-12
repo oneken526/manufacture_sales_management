@@ -19,7 +19,9 @@ return new class extends Migration
             $table->unique(['stock_lot_id', 'warehouse_id']);
         });
 
-        DB::statement('ALTER TABLE stock_quantities ADD CONSTRAINT chk_stock_quantities_quantity CHECK (quantity >= 0)');
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE stock_quantities ADD CONSTRAINT chk_stock_quantities_quantity CHECK (quantity >= 0)');
+        }
     }
 
     public function down(): void

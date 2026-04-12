@@ -19,7 +19,9 @@ return new class extends Migration
             $table->softDeletes();
         });
 
-        DB::statement('ALTER TABLE payment_allocations ADD CONSTRAINT chk_payment_allocations_amount CHECK (allocated_amount > 0)');
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE payment_allocations ADD CONSTRAINT chk_payment_allocations_amount CHECK (allocated_amount > 0)');
+        }
     }
 
     public function down(): void

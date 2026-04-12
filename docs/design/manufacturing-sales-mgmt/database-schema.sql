@@ -49,17 +49,21 @@ ALTER TABLE users
 -- 🔵 信頼性: REQ-005・US-005・ヒアリングQ6より
 CREATE TABLE customers (
     id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    customer_code   VARCHAR(20)     NOT NULL COMMENT '得意先コード（管理用）',
+    code            VARCHAR(20)     NOT NULL COMMENT '得意先コード（管理用）',
     name            VARCHAR(255)    NOT NULL COMMENT '社名',
+    name_kana       VARCHAR(255)    NULL     COMMENT '社名フリガナ',
+    postal_code     VARCHAR(10)     NULL     COMMENT '郵便番号',
     address         TEXT            NULL     COMMENT '住所',
+    phone           VARCHAR(20)     NULL     COMMENT '電話番号',
+    email           VARCHAR(255)    NULL     COMMENT '連絡先メールアドレス',
     closing_day     TINYINT         NOT NULL DEFAULT 99 COMMENT '締日（1-28 または 99=月末）（EDGE-008）',
     credit_limit    DECIMAL(15, 2)  NOT NULL DEFAULT 0  COMMENT '与信限度額（0=制限なし）（EDGE-007）',
-    email           VARCHAR(255)    NULL     COMMENT '連絡先メールアドレス',
+    notes           TEXT            NULL     COMMENT '備考',
     created_at      TIMESTAMP       NULL     DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP       NULL     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at      TIMESTAMP       NULL     DEFAULT NULL,
     PRIMARY KEY (id),
-    UNIQUE KEY uq_customers_customer_code (customer_code),
+    UNIQUE KEY uq_customers_code (code),
     INDEX idx_customers_name (name),
     INDEX idx_customers_deleted_at (deleted_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='得意先マスタ';
@@ -86,27 +90,33 @@ CREATE TABLE customer_special_prices (
 CREATE TABLE product_categories (
     id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     name       VARCHAR(100)    NOT NULL COMMENT 'カテゴリ名',
+    parent_id  BIGINT UNSIGNED NULL     COMMENT '親カテゴリID（NULL=ルート）',
+    sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '表示順（昇順）',
     created_at TIMESTAMP       NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP       NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP       NULL DEFAULT NULL,
     PRIMARY KEY (id),
-    INDEX idx_product_categories_deleted_at (deleted_at)
+    INDEX idx_product_categories_parent_id (parent_id),
+    INDEX idx_product_categories_deleted_at (deleted_at),
+    CONSTRAINT fk_product_categories_parent FOREIGN KEY (parent_id) REFERENCES product_categories (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商品カテゴリマスタ';
 
 -- 商品マスタ
 -- 🔵 信頼性: REQ-008・US-007より
 CREATE TABLE products (
-    id                  BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    product_code        VARCHAR(50)     NOT NULL COMMENT '品番',
-    name                VARCHAR(255)    NOT NULL COMMENT '品名',
-    product_category_id BIGINT UNSIGNED NOT NULL COMMENT 'カテゴリID',
-    standard_price      DECIMAL(15, 2)  NOT NULL DEFAULT 0 COMMENT '標準単価',
-    created_at          TIMESTAMP       NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at          TIMESTAMP       NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    deleted_at          TIMESTAMP       NULL DEFAULT NULL,
+    id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    code        VARCHAR(50)     NOT NULL COMMENT '品番',
+    name        VARCHAR(255)    NOT NULL COMMENT '品名',
+    category_id BIGINT UNSIGNED NOT NULL COMMENT 'カテゴリID',
+    unit_price  DECIMAL(15, 2)  NOT NULL DEFAULT 0 COMMENT '標準単価',
+    unit_name   VARCHAR(20)     NULL     COMMENT '単位（個・本・kg 等）',
+    notes       TEXT            NULL     COMMENT '備考',
+    created_at  TIMESTAMP       NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP       NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at  TIMESTAMP       NULL DEFAULT NULL,
     PRIMARY KEY (id),
-    UNIQUE KEY uq_products_product_code (product_code),
-    INDEX idx_products_category (product_category_id),
+    UNIQUE KEY uq_products_code (code),
+    INDEX idx_products_category (category_id),
     INDEX idx_products_name (name),
     INDEX idx_products_deleted_at (deleted_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='商品マスタ';

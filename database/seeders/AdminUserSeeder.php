@@ -11,20 +11,43 @@ use Illuminate\Support\Facades\Hash;
 class AdminUserSeeder extends Seeder
 {
     /**
-     * 初期管理者ユーザーを作成する
+     * ロール別初期ユーザーを作成する
      * 本番環境では必ずパスワードを変更すること
      */
     public function run(): void
     {
-        $admin = User::firstOrCreate(
-            ['email' => 'admin@example.com'],
+        $users = [
             [
-                'name'     => '管理者',
-                'password' => Hash::make('password'),
-            ]
-        );
+                'email' => 'admin@example.com',
+                'name'  => '管理者',
+                'role'  => 'admin',
+            ],
+            [
+                'email' => 'sales@example.com',
+                'name'  => '営業担当',
+                'role'  => 'sales',
+            ],
+            [
+                'email' => 'manufacture@example.com',
+                'name'  => '製造担当',
+                'role'  => 'manufacture',
+            ],
+            [
+                'email' => 'warehouse@example.com',
+                'name'  => '倉庫担当',
+                'role'  => 'warehouse',
+            ],
+        ];
 
-        // admin ロールを付与（Spatie Permission）
-        $admin->assignRole('admin');
+        foreach ($users as $data) {
+            $user = User::firstOrCreate(
+                ['email' => $data['email']],
+                [
+                    'name'     => $data['name'],
+                    'password' => Hash::make('password'),
+                ]
+            );
+            $user->syncRoles([$data['role']]);
+        }
     }
 }

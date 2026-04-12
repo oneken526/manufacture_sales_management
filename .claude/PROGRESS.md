@@ -11,17 +11,19 @@
 | TASK-0005 | 認証画面カスタマイズ | 2026-04-12 |
 | TASK-0006 | 得意先管理 CRUD（CustomerController） | 2026-04-12 |
 | TASK-0007 | 商品・カテゴリ管理 CRUD（ProductController） | 2026-04-12 |
+| TASK-0008 | 倉庫管理 CRUD（WarehouseController） | 2026-04-12 |
 
 ## テスト状況
 
-- 全テスト: 17件 / 17件 PASS
+- 全テスト: 27件 / 27件 PASS
   - Feature/Auth/AuthenticationTest: 7件
   - Feature/Auth/PasswordResetTest: 2件
   - Feature/DashboardTest: 8件
+  - Feature/WarehouseTest: 10件
 
 ## 次のタスク
 
-- TASK-0008: 倉庫管理 CRUD（WarehouseController）
+- TASK-0009: ユーザー管理 CRUD + ロール付与（UserController）
 
 ## 主要実装済みファイル
 
@@ -36,21 +38,26 @@
 - `app/Http/Controllers/DashboardController.php` — ロール別ダッシュボード表示
 - `app/Http/Controllers/Auth/AuthenticatedSessionController.php` — ロール別リダイレクト・ログアウト
 - `app/Http/Controllers/CustomerController.php` — 得意先 CRUD（index/create/store/show/edit/update/destroy）
+- `app/Http/Controllers/ProductCategoryController.php` — カテゴリ CRUD・子商品ありの削除ガード
+- `app/Http/Controllers/ProductController.php` — 商品 CRUD + Ajax 検索（`GET /api/products/search`）
+- `app/Http/Controllers/WarehouseController.php` — 倉庫 CRUD（index/create/store/edit/update/destroy）、admin のみ
 
 ### モデル
 - `app/Models/Customer.php` — SoftDeletes・fillable・リレーション・締日ラベルアクセサ
 - `app/Models/CustomerSpecialPrice.php` — SoftDeletes・customer/product リレーション
+- `app/Models/ProductCategory.php` — SoftDeletes・products リレーション
+- `app/Models/Product.php` — SoftDeletes・category/specialPrices/stockLots リレーション
+- `app/Models/Warehouse.php` — SoftDeletes・fillable['code','name']・stockQuantities/shipments リレーション
 
 ### フォームリクエスト
 - `app/Http/Requests/CustomerRequest.php` — 得意先バリデーション（コードユニーク・締日・与信限度額）
-- `app/Http/Controllers/ProductCategoryController.php` — カテゴリ CRUD・子商品ありの削除ガード
-- `app/Http/Controllers/ProductController.php` — 商品 CRUD + Ajax 検索（`GET /api/products/search`）
-- `app/Models/ProductCategory.php` — SoftDeletes・products リレーション
-- `app/Models/Product.php` — SoftDeletes・category/specialPrices/stockLots リレーション
 - `app/Http/Requests/ProductCategoryRequest.php` — カテゴリ名ユニークバリデーション
 - `app/Http/Requests/ProductRequest.php` — 商品コードユニーク・カテゴリ存在・標準単価バリデーション
+- `app/Http/Requests/WarehouseRequest.php` — 倉庫コードユニーク（更新時自己除外）・name 必須
 
 ### データベース
-- 20本のマイグレーション（全業務テーブル）
+- 20本のマイグレーション（全業務テーブル）＋ALTER マイグレーション
+- `database/migrations/2026_04_12_000001_alter_warehouses_add_code_drop_location.php` — warehouses に code 追加・location 削除
+- `database/factories/WarehouseFactory.php` — テスト用ファクトリ
 - `database/seeders/RoleSeeder.php` — 4ロール（admin/sales/manufacture/warehouse）
 - `database/seeders/AdminUserSeeder.php` — ロール別初期ユーザー4名

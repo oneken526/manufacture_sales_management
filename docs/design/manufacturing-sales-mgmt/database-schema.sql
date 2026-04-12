@@ -125,12 +125,13 @@ CREATE TABLE products (
 -- 🔵 信頼性: REQ-009・US-008より
 CREATE TABLE warehouses (
     id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    code       VARCHAR(50)     NOT NULL COMMENT '倉庫コード',
     name       VARCHAR(100)    NOT NULL COMMENT '倉庫名',
-    location   VARCHAR(255)    NULL     COMMENT 'ロケーション・所在地',
     created_at TIMESTAMP       NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP       NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP       NULL DEFAULT NULL,
     PRIMARY KEY (id),
+    UNIQUE KEY uq_warehouses_code (code),
     INDEX idx_warehouses_deleted_at (deleted_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='倉庫マスタ';
 

@@ -4,26 +4,16 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// unit_name・notes は create_products_table に統合済みのため no-op
 return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table): void {
-            $table->string('unit_name', 20)
-                  ->nullable()
-                  ->after('standard_price')
-                  ->comment('単位（個・本・kg 等）');
-            $table->text('notes')
-                  ->nullable()
-                  ->after('unit_name')
-                  ->comment('備考');
-        });
+        // columns already included in create_products_table migration
     }
 
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table): void {
-            $table->dropColumn(['unit_name', 'notes']);
-        });
+        // no-op
     }
 };

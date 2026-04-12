@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -22,6 +23,10 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('customers', CustomerController::class);
         Route::resource('product-categories', ProductCategoryController::class);
         Route::resource('products', ProductController::class);
+    });
+
+    Route::middleware(['role:admin'])->group(function (): void {
+        Route::resource('warehouses', WarehouseController::class)->except(['show']);
     });
 
     // Ajax 商品検索（全認証ユーザーが利用可能）

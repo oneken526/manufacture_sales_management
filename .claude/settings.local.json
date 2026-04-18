@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/oneke/.claude/**)",
+      "Bash(cat ~/.claude/agents/*.md)",
+      "Bash(mkdir -p .claude/agents)",
+      "Bash(cp ~/.claude/agents/skill-reviewer.md .claude/agents/skill-reviewer.md)",
+      "Read(//c/Users/oneken/.claude/**)"
+    ]
+  }
+}

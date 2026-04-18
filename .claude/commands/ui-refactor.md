@@ -1,3 +1,7 @@
+---
+description: Blade ビューをスキャンして重複UIパーツ（ボタン・入力・セレクト・バッジ等）を検出し、resources/views/components/ へ Blade コンポーネントとして切り出す。「UIをコンポーネント化して」「Bladeを整理したい」「重複パーツをまとめて」「/ui-refactor」などのリクエストで積極的に使用すること。
+---
+
 # /ui-refactor — Blade UI コンポーネント化
 
 `resources/views/` 以下の Blade ファイルをスキャンし、重複・類似している UI パーツを検出して
@@ -65,6 +69,8 @@
   - `rounded-full` または `rounded`
   - 色付き背景（`bg-*-*`）と色付きテキスト（`text-*-*`）
 - ステータス表示・カテゴリ表示など「ラベル」として使われているもの
+
+これらの条件は典型的な Tailwind バッジの構造を前提にしている。プロジェクト固有のクラス（例: `rounded-lg`）や `@apply` で抽象化されている場合は条件を緩めて「視覚的にラベルとして機能しているか」で判断すること。
 
 ---
 
@@ -141,96 +147,27 @@ AskUserQuestion ツールを使い、以下を質問する:
 
 **各パーツの実装ガイド:**
 
+Tailwind クラスの具体値はステップ2のスキャン結果から抽出した値を使うこと（ハードコードしない）。
+`$attributes->merge()` を使って呼び出し元からクラスを追加できるようにする。
+
 #### x-button
-役割（variant）によってスタイルを切り替える。テキストは `$slot` で受け取る。
-```blade
-@props(['variant' => 'primary', 'type' => 'button'])
-
-@php
-$styles = [
-    'primary'   => 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm',
-    'secondary' => 'bg-slate-100 text-slate-700 hover:bg-slate-200',
-    'danger'    => 'bg-red-50 text-red-600 hover:bg-red-100',
-];
-@endphp
-
-<button type="{{ $type }}"
-        {{ $attributes->merge(['class' => 'inline-flex items-center gap-1.5 px-5 py-2 text-sm font-medium rounded-lg transition-colors ' . ($styles[$variant] ?? $styles['primary'])]) }}>
-    {{ $slot }}
-</button>
-```
-
-使用例:
-```blade
-<x-button variant="primary" type="submit">登録する</x-button>
-<x-button variant="secondary" tag="a" :href="route('warehouses.index')">キャンセル</x-button>
-<x-button variant="danger" type="submit">削除</x-button>
-```
+- `@props`: `variant`（primary / secondary / danger）、`type`（デフォルト: `'button'`）
+- `@php` の `$styles` 配列で variant ごとにスキャンで得たクラスを割り当てる
+- テキストは `$slot` で受け取る
 
 #### x-input
-テキスト系 input（text / email / number / password）を統一する。
-```blade
-@props(['name', 'type' => 'text', 'value' => '', 'maxlength' => null, 'placeholder' => null])
-
-<input
-    type="{{ $type }}"
-    name="{{ $name }}"
-    value="{{ $value }}"
-    @if($maxlength) maxlength="{{ $maxlength }}" @endif
-    @if($placeholder) placeholder="{{ $placeholder }}" @endif
-    {{ $attributes->merge(['class' => 'w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 ' . ($errors->has($name) ? 'border-red-400' : 'border-slate-300')]) }}>
-```
-
-使用例:
-```blade
-<x-input name="code" :value="old('code', $warehouse?->code)" maxlength="50" />
-<x-input name="email" type="email" :value="old('email')" />
-```
+- `@props`: `name`、`type`（デフォルト: `'text'`）、`value`、`maxlength`、`placeholder`
+- `$errors->has($name)` でエラー時のボーダー色を切り替える
 
 #### x-select
-```blade
-@props(['name'])
-
-<select name="{{ $name }}"
-        {{ $attributes->merge(['class' => 'w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 ' . ($errors->has($name) ? 'border-red-400' : 'border-slate-300')]) }}>
-    {{ $slot }}
-</select>
-```
-
-使用例:
-```blade
-<x-select name="closing_day">
-    @foreach(range(1, 28) as $day)
-        <option value="{{ $day }}">{{ $day }}日</option>
-    @endforeach
-</x-select>
-```
+- `@props`: `name`
+- 選択肢は `$slot` で受け取る
+- x-input と同じボーダー・フォーカスクラスを適用する
 
 #### x-badge
-役割（variant）で色を切り替える。
-```blade
-@props(['variant' => 'default'])
-
-@php
-$styles = [
-    'default' => 'bg-slate-100 text-slate-600',
-    'success' => 'bg-green-100 text-green-700',
-    'warning' => 'bg-yellow-100 text-yellow-700',
-    'danger'  => 'bg-red-100 text-red-600',
-    'info'    => 'bg-indigo-100 text-indigo-700',
-];
-@endphp
-
-<span {{ $attributes->merge(['class' => 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ' . ($styles[$variant] ?? $styles['default'])]) }}>
-    {{ $slot }}
-</span>
-```
-
-使用例:
-```blade
-<x-badge variant="success">承認済</x-badge>
-<x-badge variant="warning">申請中</x-badge>
-```
+- `@props`: `variant`（default / success / warning / danger / info）
+- `@php` の `$styles` 配列で variant ごとにスキャンで得た背景色・文字色を割り当てる
+- テキストは `$slot` で受け取る
 
 ### 5-2. 既存ビューの書き換え
 
@@ -356,8 +293,8 @@ $styles = [
 ## 完了レポート
 
 ### 作成したコンポーネント
-- `resources/views/components/button.blade.php` — props: variant, type
-- `resources/views/components/input.blade.php`  — props: name, type, value, maxlength, placeholder
+- `resources/views/components/buttons/button.blade.php` — props: variant, type
+- `resources/views/components/inputs/input.blade.php`  — props: name, type, value, maxlength, placeholder
 - ...
 
 ### 書き換えたファイル

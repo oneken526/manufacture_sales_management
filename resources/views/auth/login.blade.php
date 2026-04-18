@@ -2,28 +2,28 @@
     <h2 class="text-xl font-bold text-center text-gray-800 mb-6">ログイン</h2>
 
     <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    <x-ui.auth-session-status class="mb-4" :status="session('status')" />
 
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
         <!-- メールアドレス -->
         <div>
-            <x-input-label for="email" :value="__('メールアドレス')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <x-inputs.input-label for="email" :value="__('メールアドレス')" />
+            <x-inputs.text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+            <x-inputs.input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
         <!-- パスワード -->
         <div class="mt-4">
-            <x-input-label for="password" :value="__('パスワード')" />
+            <x-inputs.input-label for="password" :value="__('パスワード')" />
 
-            <x-text-input id="password" class="block mt-1 w-full"
+            <x-inputs.text-input id="password" class="block mt-1 w-full"
                             type="password"
                             name="password"
                             required autocomplete="current-password" />
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+            <x-inputs.input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
         <!-- ログイン状態を保存 -->
@@ -41,9 +41,9 @@
                 </a>
             @endif
 
-            <x-primary-button class="ms-3">
+            <x-buttons.primary-button class="ms-3">
                 ログイン
-            </x-primary-button>
+            </x-buttons.primary-button>
         </div>
     </form>
 </x-guest-layout>

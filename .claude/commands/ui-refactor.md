@@ -3,6 +3,16 @@
 `resources/views/` 以下の Blade ファイルをスキャンし、重複・類似している UI パーツを検出して
 `resources/views/components/` に Blade コンポーネントとして切り出す。
 
+コンポーネントはパーツの種類ごとにサブフォルダで管理する:
+
+| フォルダ | 対象パーツ | タグ形式 |
+|---------|-----------|---------|
+| `buttons/` | ボタン類 | `<x-buttons.xxx>` |
+| `inputs/` | テキスト入力・ラベル・エラー | `<x-inputs.xxx>` |
+| `navigation/` | ナビゲーション・ドロップダウン | `<x-navigation.xxx>` |
+| `ui/` | モーダル・ロゴ・その他 UI | `<x-ui.xxx>` |
+| `badges/` | バッジ・ステータスラベル | `<x-badges.xxx>` |
+
 ---
 
 ## ステップ 1: 既存コンポーネントの把握
@@ -115,7 +125,13 @@ AskUserQuestion ツールを使い、以下を質問する:
 
 ### 5-1. コンポーネントファイルの作成・更新
 
-`resources/views/components/{コンポーネント名}.blade.php` を作成する。
+パーツ種別に応じたサブフォルダに作成する。
+
+| 作成するコンポーネント | 保存先パス |
+|----------------------|-----------|
+| x-buttons.button 等 | `resources/views/components/buttons/button.blade.php` |
+| x-inputs.input 等 | `resources/views/components/inputs/input.blade.php` |
+| x-badges.badge 等 | `resources/views/components/badges/badge.blade.php` |
 
 **設計方針:**
 - ファイルごとに差異がある箇所（テキスト・型・役割等）は `@props` で受け取る
@@ -230,7 +246,109 @@ $styles = [
 
 ---
 
-## ステップ 6: 完了レポートの出力
+## ステップ 6: カタログページの更新
+
+`resources/views/ui-catalog.blade.php` を生成（または上書き）する。
+
+### カタログビューの構造
+
+- `@extends('layouts.app')` を使わず、独立したレイアウトとする
+- ページタイトル: `UI コンポーネントカタログ`
+- 各コンポーネントを **セクション単位** で表示する
+- 各セクションには以下を含める:
+  1. コンポーネント名（`x-button` など）
+  2. 全バリアント・全パターンの実物プレビュー（実際に `<x-*>` タグを使って描画）
+  3. 使用例コード（`<pre><code>` タグで表示）
+
+### 生成するビューのテンプレート
+
+```blade
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>UI コンポーネントカタログ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 p-8">
+
+<h1 class="text-3xl font-bold mb-2">UI コンポーネントカタログ</h1>
+<p class="text-slate-500 text-sm mb-10">最終更新: {{ now()->format('Y-m-d H:i') }}</p>
+
+{{-- コンポーネントごとのセクションをここに生成 --}}
+
+</body>
+</html>
+```
+
+### セクションの生成ルール
+
+`resources/views/components/` 内の全 `.blade.php` を読み込み、
+`@props` の内容から各バリアントを推定して実物プレビューを生成する。
+
+**ボタン系コンポーネント（`$slot` を持つもの）:**
+```blade
+<section class="mb-12">
+    <h2 class="text-xl font-bold mb-1">x-button</h2>
+    <p class="text-slate-500 text-sm mb-4">props: variant（primary / secondary / danger）</p>
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100 flex flex-wrap gap-3 mb-4">
+        <x-button variant="primary" type="button">登録する</x-button>
+        <x-button variant="secondary" type="button">キャンセル</x-button>
+        <x-button variant="danger" type="button">削除</x-button>
+    </div>
+    <pre class="bg-slate-800 text-green-300 text-xs rounded-lg p-4 overflow-x-auto"><code>&lt;x-button variant="primary" type="submit"&gt;登録する&lt;/x-button&gt;
+&lt;x-button variant="secondary"&gt;キャンセル&lt;/x-button&gt;
+&lt;x-button variant="danger" type="submit"&gt;削除&lt;/x-button&gt;</code></pre>
+</section>
+```
+
+**入力系コンポーネント（`x-input`, `x-select`）:**
+```blade
+<section class="mb-12">
+    <h2 class="text-xl font-bold mb-1">x-input</h2>
+    <p class="text-slate-500 text-sm mb-4">props: name, type（text / email / number）, value, maxlength, placeholder</p>
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100 grid grid-cols-2 gap-4 mb-4 max-w-xl">
+        <x-input name="_preview_text" placeholder="テキスト入力" />
+        <x-input name="_preview_email" type="email" placeholder="メールアドレス" />
+        <x-input name="_preview_number" type="number" placeholder="数値入力" />
+    </div>
+    <pre ...><code>...</code></pre>
+</section>
+```
+
+**バッジ系コンポーネント（`x-badge`）:**
+```blade
+<section class="mb-12">
+    <h2 class="text-xl font-bold mb-1">x-badge</h2>
+    <p class="text-slate-500 text-sm mb-4">props: variant（default / success / warning / danger / info）</p>
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100 flex flex-wrap gap-2 mb-4">
+        <x-badge variant="default">通常</x-badge>
+        <x-badge variant="success">承認済</x-badge>
+        <x-badge variant="warning">申請中</x-badge>
+        <x-badge variant="danger">却下</x-badge>
+        <x-badge variant="info">情報</x-badge>
+    </div>
+    <pre ...><code>...</code></pre>
+</section>
+```
+
+**既存の Breeze コンポーネント（`x-primary-button` 等）が存在する場合も同様にセクションを追加する。**
+
+### カタログへの挿入方法
+
+`resources/views/ui-catalog.blade.php` 内の以下のコメントを挿入ポイントとして使う。
+
+```blade
+{{-- [ui-refactor:components-start] --}}
+{{-- [ui-refactor:components-end] --}}
+```
+
+新しいコンポーネントのセクション HTML をこの2行の**間に追記**する（既存セクションは消さない）。
+コメント行自体は残したままにする。
+
+---
+
+## ステップ 7: 完了レポートの出力
 
 実装完了後、以下のフォーマットで結果を出力する。
 
@@ -238,17 +356,16 @@ $styles = [
 ## 完了レポート
 
 ### 作成したコンポーネント
-- `resources/views/components/x-search-form.blade.php` — props: action, placeholder, paramName
-- `resources/views/components/x-flash-message.blade.php` — props: type
+- `resources/views/components/button.blade.php` — props: variant, type
+- `resources/views/components/input.blade.php`  — props: name, type, value, maxlength, placeholder
 - ...
 
 ### 書き換えたファイル
-- `resources/views/customers/index.blade.php` — 検索フォーム, フラッシュメッセージ, 削除フォーム を置換
-- `resources/views/warehouses/index.blade.php` — 検索フォーム, 削除フォーム を置換
+- `resources/views/customers/create.blade.php` — ボタン×2 を置換
+- `resources/views/warehouses/create.blade.php` — ボタン×2 を置換
 - ...
 
-### 使用例
-<x-search-form :action="route('customers.index')" placeholder="得意先名・コードで検索" />
-<x-flash-message />
-<x-delete-form :action="route('customers.destroy', $customer)" :label="$customer->name" />
+### カタログページ
+- `resources/views/ui-catalog.blade.php` を更新しました
+- ブラウザで http://localhost/ui-catalog を開くと確認できます（ローカル環境のみ）
 ```

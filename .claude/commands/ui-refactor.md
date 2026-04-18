@@ -1,57 +1,113 @@
+---
+description: Blade ビューをスキャンして重複UIパーツ（ボタン・入力・セレクト・バッジ等）を検出し、resources/views/components/ へ Blade コンポーネントとして切り出す。「UIをコンポーネント化して」「Bladeを整理したい」「重複パーツをまとめて」「/ui-refactor」などのリクエストで積極的に使用すること。
+---
+
 # /ui-refactor — Blade UI コンポーネント化
 
 `resources/views/` 以下の Blade ファイルをスキャンし、重複・類似している UI パーツを検出して
 `resources/views/components/` に Blade コンポーネントとして切り出す。
 
+コンポーネントはパーツの種類ごとにサブフォルダで管理する:
+
+| フォルダ | 対象パーツ | タグ形式 |
+|---------|-----------|---------|
+| `buttons/` | ボタン類 | `<x-buttons.xxx>` |
+| `inputs/` | テキスト入力・ラベル・エラー | `<x-inputs.xxx>` |
+| `navigation/` | ナビゲーション・ドロップダウン | `<x-navigation.xxx>` |
+| `ui/` | モーダル・ロゴ・その他 UI | `<x-ui.xxx>` |
+| `badges/` | バッジ・ステータスラベル | `<x-badges.xxx>` |
+
 ---
 
-## ステップ 1: スキャン
+## ステップ 1: 既存コンポーネントの把握
+
+まず `resources/views/components/` 以下の全 `.blade.php` ファイルを読み込み、
+各コンポーネントの **名前・@props 定義・HTML 構造** を把握する。
+
+存在しない場合（ディレクトリが空・存在しない）はこのステップをスキップする。
+
+---
+
+## ステップ 2: スキャン
 
 `resources/views/` 以下の全 `.blade.php` ファイルを読み込む。
 ただし `resources/views/components/` 内はスキャン対象から除外する（既にコンポーネント化済みのため）。
 
-以下の4パターンを重点的に探す。各パターンの検出基準を満たすブロックを全て列挙する。
+以下の4種類の UI パーツを探す。**見た目の役割が一致するもの**を同一パターンとみなす
+（Tailwind クラスが多少異なっていても、「primary ボタン」「danger ボタン」のような役割で分類する）。
 
-### パターン A — 検索フォーム
-- `<form method="GET"` を含む
-- テキスト入力（`name="search"` 等）＋送信ボタン が含まれる
-- 1ファイルにつき1ブロックを1件としてカウント
+### パターン A — ボタン
 
-### パターン B — フラッシュメッセージ
-- `session('success')` / `session('error')` / `session('warning')` を参照する `@if` ブロック
-- 色付きバナー・アラートとして表示される箇所
+役割ごとに分類する。
 
-### パターン C — 一覧テーブル
-- `<table` を含み、`<thead>` と `<tbody>` を持つ
-- `@forelse` または `@foreach` で行を繰り返している
-- `@empty` で「データなし」メッセージを表示している
+| 役割 | 見分け方の目安 |
+|------|-------------|
+| primary（主アクション） | `bg-indigo-*` / `bg-blue-*` 系の背景色 |
+| secondary（キャンセル等） | `bg-slate-*` / `bg-gray-*` 系の背景色 |
+| danger（削除等） | `bg-red-*` 系の背景色 |
+| link 風ボタン | `<a>` タグだが `px-* py-*` でボタン風に装飾されているもの |
 
-### パターン D — 削除確認フォーム
-- `@method('DELETE')` を含む `<form>`
-- `onsubmit="return confirm(..."` を含む
+検出対象: `<button` タグ、およびボタン風の `<a>` タグ。
+1要素を1件としてカウントし、ファイル名・行の内容・役割を記録する。
+
+### パターン B — テキスト入力
+
+- `<input type="text"` / `type="email"` / `type="number"` / `type="password"` / `<textarea`
+- `class` に `border` と `rounded` を含むもの（スタイル付き入力）
+
+同じスタイルのものをまとめて「共通の入力スタイル」として1候補にする。
+
+### パターン C — セレクトボックス
+
+- `<select` タグで `class` に `border` と `rounded` を含むもの
+
+### パターン D — バッジ・ラベル
+
+- `<span` または `<div` で以下を**すべて**含むもの:
+  - `inline-flex` または `inline-block`
+  - `px-*` `py-*` のパディング
+  - `rounded-full` または `rounded`
+  - 色付き背景（`bg-*-*`）と色付きテキスト（`text-*-*`）
+- ステータス表示・カテゴリ表示など「ラベル」として使われているもの
+
+これらの条件は典型的な Tailwind バッジの構造を前提にしている。プロジェクト固有のクラス（例: `rounded-lg`）や `@apply` で抽象化されている場合は条件を緩めて「視覚的にラベルとして機能しているか」で判断すること。
 
 ---
 
-## ステップ 2: 候補リストの出力
+## ステップ 3: 候補リストの出力
 
-検出したブロックを以下のフォーマットで一覧表示する。
+検出したブロックをステップ1で把握した既存コンポーネントと照合し、
+**「既存コンポーネントへの置き換え」** と **「新規コンポーネントの作成」** を区別して一覧表示する。
+
+### 照合ルール
+
+- 既存コンポーネントと HTML 構造・クラス・目的が **概ね一致する** → 種別を「置き換え」とする
+- 既存コンポーネントに近いが **props の追加が必要** → 種別を「置き換え（props 追加要）」とする
+- 対応する既存コンポーネントが存在しない → 種別を「新規作成」とする
+
+### 出力フォーマット
 
 ```
 ## 検出されたコンポーネント候補
 
-| # | パターン | 出現ファイル | 提案コンポーネント名 | 出現回数 |
-|---|---------|------------|-------------------|---------|
-| 1 | 検索フォーム | customers/index, warehouses/index, ... | x-search-form | 3件 |
-| 2 | フラッシュメッセージ | customers/index, warehouses/index, ... | x-flash-message | 4件 |
-| 3 | 一覧テーブル | customers/index | x-data-table | 1件 |
-| 4 | 削除確認フォーム | customers/index, warehouses/index, ... | x-delete-form | 3件 |
+| # | パターン | 役割 | 出現ファイル | 提案コンポーネント名 | 種別 | 出現回数 |
+|---|---------|------|------------|-------------------|------|---------|
+| 1 | ボタン | primary | customers/create, warehouses/create, ... | x-button | 新規作成 | 5件 |
+| 2 | ボタン | danger | customers/index, warehouses/index, ...   | x-button | 新規作成 | 4件 |
+| 3 | テキスト入力 | — | customers/_form, warehouses/_form, ...   | x-input  | 新規作成 | 8件 |
+| 4 | セレクトボックス | — | customers/_form | x-select | 新規作成 | 2件 |
+| 5 | バッジ | ステータス | products/index | x-badge  | 新規作成 | 3件 |
 ```
 
-出現回数が1件のものも候補に含めるが、備考欄に「将来の再利用向け」と記載する。
+- 同じ役割（例: primary ボタン）は複数ファイルにまたがっていても1候補にまとめる
+- 「置き換え」: 既存コンポーネントがそのまま使える。ビューを書き換えるだけ。
+- 「置き換え（props 追加要）」: 既存コンポーネントに props を追加してからビューを書き換える。
+- 「新規作成」: コンポーネントファイルを新規作成してからビューを書き換える。
+- 出現回数が1件のものも候補に含めるが、備考欄に「将来の再利用向け」と記載する。
 
 ---
 
-## ステップ 3: ユーザーに実装する番号を確認する
+## ステップ 4: ユーザーに実装する番号を確認する
 
 AskUserQuestion ツールを使い、以下を質問する:
 
@@ -61,96 +117,59 @@ AskUserQuestion ツールを使い、以下を質問する:
 
 ---
 
-## ステップ 4: 選択された候補をコンポーネント化する
+## ステップ 5: 選択された候補をコンポーネント化する
 
-選択された番号のコンポーネントを順番に実装する。各コンポーネントについて以下を行う。
+選択された番号のコンポーネントを順番に実装する。**種別によって作業内容が異なる。**
 
-### 4-1. コンポーネントファイルの作成
+### 5-0. 種別ごとの作業分岐
 
-`resources/views/components/{コンポーネント名}.blade.php` を作成する。
+| 種別 | コンポーネントファイル | ビュー書き換え |
+|------|----------------------|--------------|
+| 置き換え | 変更なし | `<x-xxx>` タグに書き換え |
+| 置き換え（props 追加要） | 既存ファイルに `@props` の項目を追加 | `<x-xxx>` タグに書き換え |
+| 新規作成 | 新規ファイルを作成 | `<x-xxx>` タグに書き換え |
+
+### 5-1. コンポーネントファイルの作成・更新
+
+パーツ種別に応じたサブフォルダに作成する。
+
+| 作成するコンポーネント | 保存先パス |
+|----------------------|-----------|
+| x-buttons.button 等 | `resources/views/components/buttons/button.blade.php` |
+| x-inputs.input 等 | `resources/views/components/inputs/input.blade.php` |
+| x-badges.badge 等 | `resources/views/components/badges/badge.blade.php` |
 
 **設計方針:**
-- ファイルごとに差異がある箇所（ルート名・カラム構成・プレースホルダー等）は `@props` で受け取る
-- 差異がない共通部分はハードコードする
+- ファイルごとに差異がある箇所（テキスト・型・役割等）は `@props` で受け取る
+- 差異がない共通の Tailwind クラス群はハードコードする
 - `@props` のデフォルト値は最も多く使われている値を採用する
+- ボタンなどテキストを持つ要素は `$slot` でテキストを受け取る
 
-**各パターンの実装ガイド:**
+**各パーツの実装ガイド:**
 
-#### x-search-form
-```blade
-@props(['action', 'placeholder' => 'キーワードで検索', 'paramName' => 'search'])
+Tailwind クラスの具体値はステップ2のスキャン結果から抽出した値を使うこと（ハードコードしない）。
+`$attributes->merge()` を使って呼び出し元からクラスを追加できるようにする。
 
-<div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 mb-5">
-    <form method="GET" action="{{ $action }}" class="flex flex-wrap gap-2 items-center">
-        <input type="text" name="{{ $paramName }}" value="{{ request($paramName) }}"
-               placeholder="{{ $placeholder }}"
-               class="border border-slate-300 rounded-lg px-3 py-2 text-sm w-72 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent">
-        <button type="submit"
-                class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-700 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors">
-            検索
-        </button>
-        @if(request($paramName))
-            <a href="{{ $action }}"
-               class="px-4 py-2 bg-slate-100 text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-200 transition-colors">
-                クリア
-            </a>
-        @endif
-    </form>
-</div>
-```
+#### x-button
+- `@props`: `variant`（primary / secondary / danger）、`type`（デフォルト: `'button'`）
+- `@php` の `$styles` 配列で variant ごとにスキャンで得たクラスを割り当てる
+- テキストは `$slot` で受け取る
 
-#### x-flash-message
-```blade
-@props(['type' => 'success'])
+#### x-input
+- `@props`: `name`、`type`（デフォルト: `'text'`）、`value`、`maxlength`、`placeholder`
+- `$errors->has($name)` でエラー時のボーダー色を切り替える
 
-@php
-$styles = [
-    'success' => 'bg-green-50 border-green-400 text-green-700',
-    'error'   => 'bg-red-50 border-red-400 text-red-700',
-    'warning' => 'bg-yellow-50 border-yellow-400 text-yellow-700',
-];
-$key = $type;
-@endphp
+#### x-select
+- `@props`: `name`
+- 選択肢は `$slot` で受け取る
+- x-input と同じボーダー・フォーカスクラスを適用する
 
-@if(session($type))
-<div class="mb-4 border-l-4 rounded-lg px-4 py-3 text-sm {{ $styles[$key] ?? $styles['success'] }}">
-    {{ session($type) }}
-</div>
-@endif
-```
+#### x-badge
+- `@props`: `variant`（default / success / warning / danger / info）
+- `@php` の `$styles` 配列で variant ごとにスキャンで得た背景色・文字色を割り当てる
+- テキストは `$slot` で受け取る
 
-#### x-delete-form
-```blade
-@props(['action', 'label' => 'このレコード'])
-
-<form method="POST" action="{{ $action }}"
-      class="inline"
-      onsubmit="return confirm('「{{ $label }}」を削除しますか？')">
-    @csrf
-    @method('DELETE')
-    <button type="submit"
-            class="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-colors">
-        削除
-    </button>
-</form>
-```
-
-#### x-data-table（スロット版）
-テーブルはカラム構成がビューごとに大きく異なるため、thead・tbody をスロットで受け取る構成にする。
-```blade
-@props(['emptyMessage' => 'データが登録されていません'])
-
-<div class="bg-white rounded-xl shadow-md overflow-hidden">
-    <table class="w-full text-sm">
-        {{ $header }}
-        <tbody class="divide-y divide-slate-100">
-            {{ $slot }}
-        </tbody>
-    </table>
-</div>
-```
-
-### 4-2. 既存ビューの書き換え
+### 5-2. 既存ビューの書き換え
 
 対象ビューファイルを読み込み、該当ブロックを `<x-コンポーネント名>` タグに置き換える。
 元のコードを削除して新しいタグを挿入する。
@@ -164,7 +183,58 @@ $key = $type;
 
 ---
 
-## ステップ 5: 完了レポートの出力
+## ステップ 6: カタログページの更新
+
+`resources/views/ui-catalog.blade.php` を生成（または上書き）する。
+
+### カタログビューの構造
+
+- `@extends('layouts.app')` を使わず、独立したレイアウトとする
+- ページタイトル: `UI コンポーネントカタログ`
+- **セクションは `components/` のサブフォルダと 1対1 に対応させる**
+  - `buttons/` → **buttons** セクション
+  - `inputs/` → **inputs** セクション（text-input・input-label・input-error をまとめて掲載）
+  - `badges/` → **badges** セクション
+  - `ui/` → **ui** セクション（dashboard-card・quick-link 等をまとめて掲載）
+  - 新しいサブフォルダが増えたら同名セクションを追加する
+- 各セクションには以下を含める:
+  1. フォルダ名（セクション見出し）とそのフォルダに含まれるコンポーネントタグ一覧
+  2. コンポーネントごとのプレビューカード（全バリアント・全パターンの実物描画）
+  3. 各カードの末尾に使用例コード（`<pre><code>` タグ）
+
+### セクション構造
+
+- 各セクションはトグルボタンで開閉するアコーディオン形式とする
+- **初期表示は閉じた状態**
+- ヘッダー行にフォルダ名を表示し、クリックで本文を展開する
+  - フォルダ内にサブフォルダがある場合はそのサブフォルダ名をサブテキストとして並べる
+  - サブフォルダがなく `.blade.php` ファイルのみの場合はコンポーネントタグ一覧を並べる
+- 既存のカタログページの実装スタイルに合わせること
+
+### セクションの生成ルール
+
+`resources/views/components/` 内の全 `.blade.php` を読み込み、
+`@props` の内容から各バリアントを推定して実物プレビューを生成する。
+
+- バリアントを持つコンポーネント（ボタン・バッジ等）: バリアント全種のプレビューをまとめて1カードに表示
+- 入力系コンポーネント: type 別に複数パターンを並べる
+- named slot（`$icon` 等）を持つコンポーネント: 代表的な SVG アイコンを渡した例を1〜3件表示
+
+### カタログへの挿入方法
+
+`resources/views/ui-catalog.blade.php` 内の以下のコメントを挿入ポイントとして使う。
+
+```blade
+{{-- [ui-refactor:components-start] --}}
+{{-- [ui-refactor:components-end] --}}
+```
+
+新しいコンポーネントのセクション HTML をこの2行の**間に追記**する（既存セクションは消さない）。
+コメント行自体は残したままにする。
+
+---
+
+## ステップ 7: 完了レポートの出力
 
 実装完了後、以下のフォーマットで結果を出力する。
 
@@ -172,17 +242,16 @@ $key = $type;
 ## 完了レポート
 
 ### 作成したコンポーネント
-- `resources/views/components/x-search-form.blade.php` — props: action, placeholder, paramName
-- `resources/views/components/x-flash-message.blade.php` — props: type
+- `resources/views/components/buttons/button.blade.php` — props: variant, type
+- `resources/views/components/inputs/input.blade.php`  — props: name, type, value, maxlength, placeholder
 - ...
 
 ### 書き換えたファイル
-- `resources/views/customers/index.blade.php` — 検索フォーム, フラッシュメッセージ, 削除フォーム を置換
-- `resources/views/warehouses/index.blade.php` — 検索フォーム, 削除フォーム を置換
+- `resources/views/customers/create.blade.php` — ボタン×2 を置換
+- `resources/views/warehouses/create.blade.php` — ボタン×2 を置換
 - ...
 
-### 使用例
-<x-search-form :action="route('customers.index')" placeholder="得意先名・コードで検索" />
-<x-flash-message />
-<x-delete-form :action="route('customers.destroy', $customer)" :label="$customer->name" />
+### カタログページ
+- `resources/views/ui-catalog.blade.php` を更新しました
+- ブラウザで http://localhost/ui-catalog を開くと確認できます（ローカル環境のみ）
 ```

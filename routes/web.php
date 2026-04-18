@@ -33,4 +33,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/api/products/search', [ProductController::class, 'search'])->name('api.products.search');
 });
 
+// UI カタログ（ローカル環境のみ）
+if (app()->environment('local')) {
+    Route::get('/ui-catalog', function () {
+        return view('ui-catalog');
+    })->name('ui-catalog');
+}
+
 require __DIR__.'/auth.php';

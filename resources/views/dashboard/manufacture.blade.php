@@ -3,29 +3,29 @@
 @section('title', 'ダッシュボード（製造）')
 
 @section('content')
-<div class="mb-6">
-    <h1 class="text-2xl font-bold text-slate-800">ダッシュボード</h1>
-    <p class="text-sm text-slate-500 mt-1">製造業販売管理システム — 製造ビュー</p>
+<div class="dashboard-header">
+    <h1 class="page-title">ダッシュボード</h1>
+    <p class="page-subtitle">製造業販売管理システム — 製造ビュー</p>
 </div>
 
-<div class="max-w-sm">
-    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-violet-500 hover:shadow-lg transition-shadow">
-        <div class="flex items-center justify-between mb-3">
-            <div class="w-10 h-10 bg-violet-100 rounded-lg flex items-center justify-center">
-                <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<div class="dashboard-single">
+    <div class="dashboard-card dashboard-card--violet">
+        <div class="dashboard-card-top">
+            <div class="dashboard-card-icon dashboard-card-icon--violet">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
             </div>
-            <span class="text-xs font-semibold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full">製造</span>
+            <span class="dashboard-card-badge dashboard-card-badge--violet">製造</span>
         </div>
-        <h3 class="text-base font-semibold text-slate-700 mb-1">製造指示</h3>
-        <p class="text-sm text-slate-400 mb-4">製造指示の確認・作業進捗の更新</p>
+        <h3 class="dashboard-card-title">製造指示</h3>
+        <p class="dashboard-card-desc">製造指示の確認・作業進捗の更新</p>
         <a href="{{ Route::has('manufacture-orders.index') ? route('manufacture-orders.index') : '#' }}"
-           class="text-xs font-medium text-violet-600 hover:text-violet-800 inline-flex items-center gap-1">
+           class="dashboard-card-link dashboard-card-link--violet">
             開く
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
             </svg>
         </a>

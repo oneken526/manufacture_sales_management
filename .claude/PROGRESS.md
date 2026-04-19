@@ -12,6 +12,7 @@
 | TASK-0006 | 得意先管理 CRUD（CustomerController） | 2026-04-12 |
 | TASK-0007 | 商品・カテゴリ管理 CRUD（ProductController） | 2026-04-12 |
 | TASK-0008 | 倉庫管理 CRUD（WarehouseController） | 2026-04-12 |
+| TASK-0009 | ユーザー管理 CRUD + ロール付与（UserController） | 2026-04-19 |
 
 ## テスト状況
 
@@ -23,7 +24,7 @@
 
 ## 次のタスク
 
-- TASK-0009: ユーザー管理 CRUD + ロール付与（UserController）
+- TASK-0010 以降
 
 ## 主要実装済みファイル
 
@@ -41,6 +42,7 @@
 - `app/Http/Controllers/ProductCategoryController.php` — カテゴリ CRUD・子商品ありの削除ガード
 - `app/Http/Controllers/ProductController.php` — 商品 CRUD + Ajax 検索（`GET /api/products/search`）
 - `app/Http/Controllers/WarehouseController.php` — 倉庫 CRUD（index/create/store/edit/update/destroy）、admin のみ
+- `app/Http/Controllers/UserController.php` — ユーザー CRUD + syncRoles、自身削除防止、admin のみ
 
 ### モデル
 - `app/Models/Customer.php` — SoftDeletes・fillable・リレーション・締日ラベルアクセサ

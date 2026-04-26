@@ -108,6 +108,20 @@
 .role-badge--sales    { background: #dcfce7; color: #15803d; }
 .role-badge--manufacture { background: #fef3c7; color: #b45309; }
 .role-badge--warehouse   { background: #dbeafe; color: #1d4ed8; }
+.warn-box {
+    background: #fff;
+    border: 1px solid #fecaca;
+    border-radius: 0.5rem;
+    padding: 1.25rem 1.5rem;
+}
+.list-footer {
+    background: #f8fafc;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
 </style>
 
 <div class="user-page-header">
@@ -184,6 +198,14 @@
             @endforelse
         </tbody>
     </table>
+</div>
+
+<div class="warn-box">
+    管理者ユーザーは削除できません。
+</div>
+
+<div class="list-footer">
+    <span>{{ $users->total() }} 件</span>
 </div>
 
 <div class="mt-pagination">

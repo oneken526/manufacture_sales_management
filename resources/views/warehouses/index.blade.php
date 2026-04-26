@@ -3,6 +3,15 @@
 @section('title', '倉庫管理')
 
 @section('content')
+<style>
+.wh-search-input {
+    border: 1px solid #cbd5e1;
+    border-radius: var(--r);
+    padding: 8px 12px;
+    font-size: 14px;
+    outline: none;
+}
+</style>
 <div class="page-header">
     <div>
         <h1 class="page-title">倉庫管理</h1>
@@ -21,7 +30,7 @@
     <form method="GET" action="{{ route('warehouses.index') }}" class="search-form">
         <input type="text" name="search" value="{{ request('search') }}"
                placeholder="倉庫名・コードで検索"
-               class="search-input">
+               class="wh-search-input">
         <button type="submit" class="btn btn-dark">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

@@ -119,6 +119,10 @@
 .submit-btn--edit    { background: #eff6ff; color: #1d4ed8; }
 .submit-btn--danger  { background: #fee2e2; color: #b91c1c; }
 .submit-btn--sm      { font-size: 0.8rem; padding: 0.375rem 0.75rem; }
+.list-footer {
+    display: flex;
+    justify-content: flex-end;
+}
 </style>
 
 <div class="prd-header">
@@ -209,6 +213,10 @@
             @endforelse
         </tbody>
     </table>
+</div>
+
+<div class="list-footer">
+    <span>{{ $products->total() }} 件</span>
 </div>
 
 <div class="mt-pagination">

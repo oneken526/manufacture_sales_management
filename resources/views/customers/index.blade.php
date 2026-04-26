@@ -3,10 +3,29 @@
 @section('title', '得意先管理')
 
 @section('content')
-<div class="page-header">
+<style>
+.cust-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+.cust-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+.cust-subtitle {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin: 0.25rem 0 0;
+}
+</style>
+<div class="cust-page-header">
     <div>
-        <h1 class="page-title">得意先管理</h1>
-        <p class="page-subtitle">得意先の登録・編集・管理</p>
+        <h1 class="cust-title">得意先管理</h1>
+        <p class="cust-subtitle">得意先の登録・編集・管理</p>
     </div>
     <a href="{{ route('customers.create') }}" class="btn btn-primary">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

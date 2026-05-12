@@ -123,6 +123,11 @@
     display: flex;
     justify-content: flex-end;
 }
+.prd-note {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 0.5rem;
+}
 </style>
 
 <div class="prd-header">

@@ -122,6 +122,14 @@
     align-items: center;
     gap: 1rem;
 }
+.user-status-label {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.25rem;
+    background: #f1f5f9;
+    color: #475569;
+}
 </style>
 
 <div class="user-page-header">

@@ -45,8 +45,8 @@
 - [x] [TASK-0006: 得意先管理 CRUD（CustomerController）](TASK-0006.md) - 8h (TDD) 🔵
 - [x] [TASK-0007: 商品・カテゴリ管理 CRUD（ProductController）](TASK-0007.md) - 8h (TDD) 🔵
 - [x] [TASK-0008: 倉庫管理 CRUD（WarehouseController）](TASK-0008.md) - 4h (TDD) 🔵
-- [ ] [TASK-0009: ユーザー管理 CRUD + ロール付与（UserController）](TASK-0009.md) - 4h (TDD) 🔵
-- [ ] [TASK-0010: 得意先別特別単価管理（CustomerSpecialPrice CRUD + Ajax）](TASK-0010.md) - 8h (TDD) 🔵
+- [x] [TASK-0009: ユーザー管理 CRUD + ロール付与（UserController）](TASK-0009.md) - 4h (TDD) 🔵
+- [x] [TASK-0010: 得意先別特別単価管理（CustomerSpecialPrice CRUD + Ajax）](TASK-0010.md) - 8h (TDD) 🔵
 
 ### 依存関係
 
@@ -196,7 +196,7 @@ TASK-0019 → TASK-0040
 
 ## 全体進捗
 
-- [ ] Phase 1: 認証・基盤・マスタ管理（10件 / 60h）
+- [x] Phase 1: 認証・基盤・マスタ管理（10件 / 60h）
 - [ ] Phase 2: 見積・受注管理（10件 / 72h）
 - [ ] Phase 3: 製造指示・在庫・出荷管理（9件 / 52h）
 - [ ] Phase 4: 請求・入金管理（4件 / 32h）

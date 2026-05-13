@@ -8,34 +8,28 @@
         <h1 class="text-2xl font-bold text-slate-800">得意先管理</h1>
         <p class="text-sm text-slate-500 mt-0.5">得意先の登録・編集・管理</p>
     </div>
-    <a href="{{ route('customers.create') }}"
-       class="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 shadow-sm transition-colors">
+    <x-buttons.link-button :href="route('customers.create')">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
         新規登録
-    </a>
+    </x-buttons.link-button>
 </div>
 
 {{-- 検索フォーム --}}
 <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 mb-5">
     <form method="GET" action="{{ route('customers.index') }}" class="flex flex-wrap gap-2 items-center">
-        <input type="text" name="search" value="{{ request('search') }}"
-               placeholder="得意先名・コードで検索"
-               class="border border-slate-300 rounded-lg px-3 py-2 text-sm w-72 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent">
-        <button type="submit"
-                class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-700 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors">
+        <x-inputs.text-input variant="search" type="text" name="search" value="{{ request('search') }}"
+               placeholder="得意先名・コードで検索" class="w-72" />
+        <x-buttons.search-button>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
             検索
-        </button>
+        </x-buttons.search-button>
         @if(request('search'))
-            <a href="{{ route('customers.index') }}"
-               class="px-4 py-2 bg-slate-100 text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-200 transition-colors">
-                クリア
-            </a>
+            <x-buttons.link-button variant="ghost" :href="route('customers.index')">クリア</x-buttons.link-button>
         @endif
     </form>
 </div>
@@ -67,24 +61,18 @@
                     @if($customer->credit_limit > 0)
                         <span class="text-slate-700 font-medium">¥{{ number_format($customer->credit_limit) }}</span>
                     @else
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500">制限なし</span>
+                        <x-badges.badge variant="default">制限なし</x-badges.badge>
                     @endif
                 </td>
                 <td class="px-5 py-3.5 text-center">
                     <div class="flex items-center justify-center gap-2">
-                        <a href="{{ route('customers.edit', $customer) }}"
-                           class="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors">
-                            編集
-                        </a>
+                        <x-buttons.table-action variant="edit" :href="route('customers.edit', $customer)">編集</x-buttons.table-action>
                         <form method="POST" action="{{ route('customers.destroy', $customer) }}"
                               class="inline"
                               onsubmit="return confirm('「{{ $customer->name }}」を削除しますか？')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit"
-                                    class="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-colors">
-                                削除
-                            </button>
+                            <x-buttons.table-action variant="delete">削除</x-buttons.table-action>
                         </form>
                     </div>
                 </td>

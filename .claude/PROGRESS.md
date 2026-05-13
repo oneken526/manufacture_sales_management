@@ -12,18 +12,22 @@
 | TASK-0006 | 得意先管理 CRUD（CustomerController） | 2026-04-12 |
 | TASK-0007 | 商品・カテゴリ管理 CRUD（ProductController） | 2026-04-12 |
 | TASK-0008 | 倉庫管理 CRUD（WarehouseController） | 2026-04-12 |
+| TASK-0009 | ユーザー管理 CRUD + ロール付与（UserController） | 2026-05-13 |
+| TASK-0010 | 得意先別特別単価管理（CustomerSpecialPrice CRUD + Ajax） | 2026-05-13 |
 
 ## テスト状況
 
-- 全テスト: 27件 / 27件 PASS
+- 全テスト: 52件 / 52件 PASS
   - Feature/Auth/AuthenticationTest: 7件
   - Feature/Auth/PasswordResetTest: 2件
   - Feature/DashboardTest: 8件
   - Feature/WarehouseTest: 10件
+  - Feature/UserTest: 10件
+  - Feature/CustomerSpecialPriceTest: 15件
 
 ## 次のタスク
 
-- TASK-0009: ユーザー管理 CRUD + ロール付与（UserController）
+- TASK-0011 以降
 
 ## 主要実装済みファイル
 
@@ -41,6 +45,9 @@
 - `app/Http/Controllers/ProductCategoryController.php` — カテゴリ CRUD・子商品ありの削除ガード
 - `app/Http/Controllers/ProductController.php` — 商品 CRUD + Ajax 検索（`GET /api/products/search`）
 - `app/Http/Controllers/WarehouseController.php` — 倉庫 CRUD（index/create/store/edit/update/destroy）、admin のみ
+- `app/Http/Controllers/UserController.php` — ユーザー CRUD + Spatie ロール付与・自身削除防止、admin のみ
+- `app/Http/Controllers/CustomerSpecialPriceController.php` — 特別単価 CRUD（index/store/update/destroy）、admin|sales
+- `app/Http/Controllers/Api/UnitPriceController.php` — Ajax 単価取得（特別単価 or 標準単価）JSON レスポンス
 
 ### モデル
 - `app/Models/Customer.php` — SoftDeletes・fillable・リレーション・締日ラベルアクセサ
@@ -54,6 +61,7 @@
 - `app/Http/Requests/ProductCategoryRequest.php` — カテゴリ名ユニークバリデーション
 - `app/Http/Requests/ProductRequest.php` — 商品コードユニーク・カテゴリ存在・標準単価バリデーション
 - `app/Http/Requests/WarehouseRequest.php` — 倉庫コードユニーク（更新時自己除外）・name 必須
+- `app/Http/Requests/UserRequest.php` — メールユニーク（更新時自己除外）・パスワード作成時必須・ロール in バリデーション
 
 ### データベース
 - 20本のマイグレーション（全業務テーブル）＋ALTER マイグレーション

@@ -16,138 +16,86 @@
 
     {{-- 得意先コード --}}
     <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">
-            得意先コード <span class="text-red-500">*</span>
-        </label>
-        <input type="text" name="code"
-               value="{{ old('code', $customer?->code) }}"
-               maxlength="20"
-               class="w-full border rounded-lgpx-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 {{ $errors->has('code') ? 'border-red-400' : 'border-slate-300' }}">
-        @error('code')
-            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-        @enderror
+        <x-inputs.input-label value="得意先コード" :required="true" />
+        <x-inputs.text-input name="code" type="text" :value="old('code', $customer?->code)" maxlength="20" class="w-full" />
+        <x-inputs.input-error :messages="$errors->get('code')" />
     </div>
 
     {{-- 得意先名 --}}
     <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">
-            得意先名 <span class="text-red-500">*</span>
-        </label>
-        <input type="text" name="name"
-               value="{{ old('name', $customer?->name) }}"
-               maxlength="255"
-               class="w-full border rounded-lgpx-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 {{ $errors->has('name') ? 'border-red-400' : 'border-slate-300' }}">
-        @error('name')
-            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-        @enderror
+        <x-inputs.input-label value="得意先名" :required="true" />
+        <x-inputs.text-input name="name" type="text" :value="old('name', $customer?->name)" maxlength="255" class="w-full" />
+        <x-inputs.input-error :messages="$errors->get('name')" />
     </div>
 
     {{-- 得意先名フリガナ --}}
     <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">得意先名フリガナ</label>
-        <input type="text" name="name_kana"
-               value="{{ old('name_kana', $customer?->name_kana) }}"
-               maxlength="255"
-               class="w-full border rounded-lgpx-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 {{ $errors->has('name_kana') ? 'border-red-400' : 'border-slate-300' }}">
-        @error('name_kana')
-            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-        @enderror
+        <x-inputs.input-label value="得意先名フリガナ" />
+        <x-inputs.text-input name="name_kana" type="text" :value="old('name_kana', $customer?->name_kana)" maxlength="255" class="w-full" />
+        <x-inputs.input-error :messages="$errors->get('name_kana')" />
     </div>
 
     <div class="grid grid-cols-2 gap-4">
         {{-- 郵便番号 --}}
         <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">郵便番号</label>
-            <input type="text" name="postal_code"
-                   value="{{ old('postal_code', $customer?->postal_code) }}"
-                   maxlength="10"
-                   placeholder="例：123-4567"
-                   class="w-full border rounded-lgpx-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 {{ $errors->has('postal_code') ? 'border-red-400' : 'border-slate-300' }}">
-            @error('postal_code')
-                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
+            <x-inputs.input-label value="郵便番号" />
+            <x-inputs.text-input name="postal_code" type="text" :value="old('postal_code', $customer?->postal_code)" maxlength="10" placeholder="例：123-4567" class="w-full" />
+            <x-inputs.input-error :messages="$errors->get('postal_code')" />
         </div>
 
         {{-- 電話番号 --}}
         <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">電話番号</label>
-            <input type="text" name="phone"
-                   value="{{ old('phone', $customer?->phone) }}"
-                   maxlength="20"
-                   placeholder="例：03-1234-5678"
-                   class="w-full border rounded-lgpx-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 {{ $errors->has('phone') ? 'border-red-400' : 'border-slate-300' }}">
-            @error('phone')
-                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
+            <x-inputs.input-label value="電話番号" />
+            <x-inputs.text-input name="phone" type="text" :value="old('phone', $customer?->phone)" maxlength="20" placeholder="例：03-1234-5678" class="w-full" />
+            <x-inputs.input-error :messages="$errors->get('phone')" />
         </div>
     </div>
 
     {{-- 住所 --}}
     <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">住所</label>
-        <textarea name="address" rows="2"
-                  class="w-full border rounded-lgpx-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 {{ $errors->has('address') ? 'border-red-400' : 'border-slate-300' }}">{{ old('address', $customer?->address) }}</textarea>
-        @error('address')
-            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-        @enderror
+        <x-inputs.input-label value="住所" />
+        <x-inputs.textarea name="address" rows="2" class="w-full">{{ old('address', $customer?->address) }}</x-inputs.textarea>
+        <x-inputs.input-error :messages="$errors->get('address')" />
     </div>
 
     {{-- メールアドレス --}}
     <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">メールアドレス</label>
-        <input type="email" name="email"
-               value="{{ old('email', $customer?->email) }}"
-               maxlength="255"
-               class="w-full border rounded-lgpx-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 {{ $errors->has('email') ? 'border-red-400' : 'border-slate-300' }}">
-        @error('email')
-            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-        @enderror
+        <x-inputs.input-label value="メールアドレス" />
+        <x-inputs.text-input name="email" type="email" :value="old('email', $customer?->email)" maxlength="255" class="w-full" />
+        <x-inputs.input-error :messages="$errors->get('email')" />
     </div>
 
     <div class="grid grid-cols-2 gap-4">
 
         {{-- 締日 --}}
         <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">
-                締日 <span class="text-red-500">*</span>
-            </label>
-            <select name="closing_day"
-                    class="w-full border rounded-lgpx-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 {{ $errors->has('closing_day') ? 'border-red-400' : 'border-slate-300' }}">
+            <x-inputs.input-label value="締日" :required="true" />
+            <x-inputs.select name="closing_day" class="w-full">
                 @php $selected = old('closing_day', $customer?->closing_day ?? 99) @endphp
                 @foreach(range(1, 28) as $day)
                     <option value="{{ $day }}" {{ (int)$selected === $day ? 'selected' : '' }}>{{ $day }}日</option>
                 @endforeach
                 <option value="99" {{ (int)$selected === 99 ? 'selected' : '' }}>月末</option>
-            </select>
-            @error('closing_day')
-                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
+            </x-inputs.select>
+            <x-inputs.input-error :messages="$errors->get('closing_day')" />
         </div>
 
         {{-- 与信限度額 --}}
         <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">
-                与信限度額 <span class="text-red-500">*</span>
+            <x-inputs.input-label value="与信限度額" :required="true">
                 <span class="text-xs text-slate-400">（0 = 制限なし）</span>
-            </label>
-            <input type="number" name="credit_limit" min="0" step="1"
-                   value="{{ old('credit_limit', $customer?->credit_limit ?? 0) }}"
-                   class="w-full border rounded-lgpx-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 {{ $errors->has('credit_limit') ? 'border-red-400' : 'border-slate-300' }}">
-            @error('credit_limit')
-                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
+            </x-inputs.input-label>
+            <x-inputs.text-input name="credit_limit" type="number" min="0" step="1" :value="old('credit_limit', $customer?->credit_limit ?? 0)" class="w-full" />
+            <x-inputs.input-error :messages="$errors->get('credit_limit')" />
         </div>
 
     </div>
 
     {{-- 備考 --}}
     <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1">備考</label>
-        <textarea name="notes" rows="3"
-                  class="w-full border rounded-lgpx-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 {{ $errors->has('notes') ? 'border-red-400' : 'border-slate-300' }}">{{ old('notes', $customer?->notes) }}</textarea>
-        @error('notes')
-            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-        @enderror
+        <x-inputs.input-label value="備考" />
+        <x-inputs.textarea name="notes" rows="3" class="w-full">{{ old('notes', $customer?->notes) }}</x-inputs.textarea>
+        <x-inputs.input-error :messages="$errors->get('notes')" />
     </div>
 
 </div>

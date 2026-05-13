@@ -8,43 +8,36 @@
         <h1 class="text-2xl font-bold text-slate-800">商品管理</h1>
         <p class="text-sm text-slate-500 mt-0.5">商品の登録・編集・管理</p>
     </div>
-    <a href="{{ route('products.create') }}"
-       class="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 shadow-sm transition-colors">
+    <x-buttons.link-button :href="route('products.create')">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
         新規登録
-    </a>
+    </x-buttons.link-button>
 </div>
 
 {{-- 検索フォーム --}}
 <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 mb-5">
     <form method="GET" action="{{ route('products.index') }}" class="flex flex-wrap gap-2 items-center">
-        <input type="text" name="search" value="{{ request('search') }}"
-               placeholder="商品名・コードで検索"
-               class="border border-slate-300 rounded-lg px-3 py-2 text-sm w-64 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent">
-        <select name="category_id"
-                class="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent">
+        <x-inputs.text-input variant="search" type="text" name="search" value="{{ request('search') }}"
+               placeholder="商品名・コードで検索" class="w-64" />
+        <x-inputs.select name="category_id">
             <option value="">全カテゴリ</option>
             @foreach($categories as $category)
                 <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
                     {{ $category->name }}
                 </option>
             @endforeach
-        </select>
-        <button type="submit"
-                class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-700 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors">
+        </x-inputs.select>
+        <x-buttons.search-button>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
             検索
-        </button>
+        </x-buttons.search-button>
         @if(request('search') || request('category_id'))
-            <a href="{{ route('products.index') }}"
-               class="px-4 py-2 bg-slate-100 text-slate-600 text-sm font-medium rounded-lg hover:bg-slate-200 transition-colors">
-                クリア
-            </a>
+            <x-buttons.link-button variant="ghost" :href="route('products.index')">クリア</x-buttons.link-button>
         @endif
     </form>
 </div>
@@ -71,9 +64,7 @@
                 </td>
                 <td class="px-5 py-3.5">
                     @if($product->category)
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-                            {{ $product->category->name }}
-                        </span>
+                        <x-badges.badge variant="default">{{ $product->category->name }}</x-badges.badge>
                     @else
                         <span class="text-slate-400">—</span>
                     @endif
@@ -81,19 +72,13 @@
                 <td class="px-5 py-3.5 text-right font-medium text-slate-700">¥{{ number_format($product->unit_price) }}</td>
                 <td class="px-5 py-3.5 text-center">
                     <div class="flex items-center justify-center gap-2">
-                        <a href="{{ route('products.edit', $product) }}"
-                           class="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors">
-                            編集
-                        </a>
+                        <x-buttons.table-action variant="edit" :href="route('products.edit', $product)">編集</x-buttons.table-action>
                         <form method="POST" action="{{ route('products.destroy', $product) }}"
                               class="inline"
                               onsubmit="return confirm('「{{ $product->name }}」を削除しますか？')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit"
-                                    class="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition-colors">
-                                削除
-                            </button>
+                            <x-buttons.table-action variant="delete">削除</x-buttons.table-action>
                         </form>
                     </div>
                 </td>
